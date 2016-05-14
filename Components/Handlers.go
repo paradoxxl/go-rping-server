@@ -6,8 +6,8 @@ import (
 	"github.com/tatsushid/go-fastping"
 	"net"
 	"net/http"
-	"time"
 	"strconv"
+	"time"
 )
 
 func Commands(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func SimplePing(w http.ResponseWriter, r *http.Request) {
 	ipaddr := vars["ipaddr"]
 
 	times, err := strconv.Atoi(vars["times"])
-	if err != nil{
+	if err != nil {
 		times = 1
 	}
 
@@ -38,6 +38,12 @@ func SimplePing(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "invalid ip or name")
 		return
 	}
+
+	if !Filter.FilterIP(ra.IP){
+		fmt.Fprintf(w, "this ip is filtered by the server administrator")
+		return
+	}
+
 	p.AddIPAddr(ra)
 	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
 		fmt.Fprintf(w, "IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
@@ -45,11 +51,11 @@ func SimplePing(w http.ResponseWriter, r *http.Request) {
 	}
 	p.OnIdle = func() {
 		if !success {
-			fmt.Fprintf(w, "%s not reachable",ra.String())
+			fmt.Fprintf(w, "%s not reachable", ra.String())
 		}
 	}
 
-	for i:=0;i < times;i++{
+	for i := 0; i < times; i++ {
 		err = p.Run()
 		if err != nil {
 			fmt.Fprintf(w, "Something went wrong")
@@ -57,3 +63,5 @@ func SimplePing(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+
