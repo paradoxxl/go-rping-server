@@ -52,11 +52,11 @@ func parseAndAdd(val string, permit bool) {
 		if _, ipnet, err := net.ParseCIDR(v); err == nil {
 			Components.Filter.AddIPNetExt(*ipnet, permit)
 		} else if ip := net.ParseIP(v); ip != nil {
-			//check whether v4 or v4 and add it accordingly
+			//check whether v4 or v6 and create the /32 or /128 mask accordingly
 			var mask net.IPMask
-			if len(ip) == net.IPv4len{
+			if ipv4:=ip.To4();ipv4 == nil{
 				mask = net.CIDRMask(8*net.IPv4len,8*net.IPv4len)
-			}else{
+			}else {
 				mask = net.CIDRMask(8*net.IPv6len,8*net.IPv6len)
 			}
 			Components.Filter.AddIPNetExt(net.IPNet{ip,mask}, permit)
