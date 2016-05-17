@@ -44,22 +44,33 @@ func SimplePing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var flush func ()
+	flusher, ok := w.(http.Flusher)
+	if ok {
+		println("Using chunked encoding!")
+		flush = func () { flusher.Flush() }
+	} else {
+		println("Chunked encoding not supported!")
+	}
+	
 	p.AddIPAddr(ra)
 	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
 		fmt.Fprintf(w, "IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
 		success = true
+		flush()
 	}
 	p.OnIdle = func() {
 		if !success {
 			fmt.Fprintf(w, "%s not reachable", ra.String())
+			flush()
 		}
 	}
 
 	for i := 0; i < times; i++ {
 		err = p.Run()
 		if err != nil {
-			fmt.Fprintf(w, "Something went wrong")
-
+			fmt.Fprintf(w, "Something went wrong: %v", err)
+			flush()
 		}
 	}
 }

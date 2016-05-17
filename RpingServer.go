@@ -22,12 +22,12 @@ func main() {
 
 	if *CustomBlock != "" {
 		//add customs to filter
-		parseAndAdd(*CustomBlock, true)
+		parseAndAdd(*CustomBlock, false)
 
 	}
-	if *CustomPermit != "" ||true {
+	if *CustomPermit != ""  {
 		//add customs to filter
-		parseAndAdd("192.168.0.20", true)
+		parseAndAdd(*CustomPermit, true)
 	}
 	if *BlockLocals {
 		//add local ipnets
